@@ -62,11 +62,12 @@ router.get('/:id', (req, res, next) => {
 
 // Put update an item
 router.put('/:id', (req, res, next) => {
-  const id = req.params.id;
+  const {id} = req.params;
+  const {folderId} = req.body;
 
   /***** Never trust users - validate input *****/
   const updateObj = {};
-  const updateableFields = ['title', 'content'];
+  const updateableFields = ['title', 'content', 'folderId'];
 
   updateableFields.forEach(field => {
     if (field in req.body) {
@@ -81,16 +82,24 @@ router.put('/:id', (req, res, next) => {
     return next(err);
   }
 
-  knex('notes')
-    .where('id', id)
+  let noteId;
+
+  knex
+    .select()
+    .from('notes')
     .update(updateObj)
-    .returning(['id', 'title', 'content'])
-    .then(note => {
-      if(note) {
-        res.json(note[0]);
-      } else {
-        res.sendStatus(404).end();
-      }
+    .where('id', id)
+    .returning('id')
+    .then(([id]) => {
+      noteId = id;
+
+      return knex.select('notes.id', 'title', 'content', 'folder_id as folderId', 'folders.name as folderName')
+        .from('notes')
+        .leftJoin('folders', 'notes.folder_id', 'folders.id')
+        .where('notes.id', noteId);
+    })
+    .then(([result]) => {
+      res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
     })
     .catch(err => {
       next(err);
@@ -108,7 +117,7 @@ router.post('/', (req, res, next) => {
   };
 
   let noteId;
-  
+
   /***** Never trust users - validate input *****/
   if (!newItem.title) {
     const err = new Error('Missing `title` in request body');
@@ -116,17 +125,21 @@ router.post('/', (req, res, next) => {
     return next(err);
   }
 
-  knex('notes')
-    .insert(newItem)
-    .returning(['title', 'content', 'id'])
-    .then(item => {
-      console.log(item);
-      //res.location(`http://${req.headers.host}/notes/${item.id}`)
-      return res.status(201).json(item);
+  knex.insert(newItem)
+    .into('notes')
+    .returning('id')
+    .then(([id]) => {
+      noteId = id;
+
+      return knex.select('notes.id', 'title', 'content', 'folder_id as folderId', 'folders.name as folderName')
+        .from('notes')
+        .leftJoin('folders', 'notes.folder_id', 'folders.id')
+        .where('notes.id', noteId);
     })
-    .catch(err => {
-      next(err);
-    });
+    .then(([result]) => {
+      res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
+    })
+    .catch(err => next(err));
 });
 
 // Delete an item

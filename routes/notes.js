@@ -13,7 +13,7 @@ const router = express.Router();
 const knex = require('../knex');
 const hydrateNotes = require('../utils/hydrateNotes');
 
-const getNoteById = function(id) {
+const getJoinedNoteById = function(id) {
   return knex.select(
     'notes.id', 'title','content',
     'folders.id as folder_id', 'folders.name as folderName',
@@ -107,7 +107,7 @@ router.get('/:id', (req, res, next) => {
 // Put update an item
 router.put('/:id', (req, res, next) => {
   const noteId = req.params.id;
-  const {title, content, folderId} = req.body;
+  const {title, content, folderId, tags} = req.body;
 
   if(!title) {
     const err = new Error('Missing `title` in request body');
@@ -126,21 +126,22 @@ router.put('/:id', (req, res, next) => {
     .where('id', noteId)
     .returning(['id'])
     .then(() => {
-
-      return knex.select('notes.id', 'title', 'content', 'folder_id as folderId', 'folders.name as folderName')
-        .from('notes')
-        .leftJoin('folders', 'notes.folder_id', 'folders.id')
-        .where('notes.id', noteId);
+      return knex.del().from('notes_tags').where({note_id: noteId})
     })
-    .then(([result]) => {
+    .then(() => {
+      const newTags = tags.map(tagId => ({note_id: noteId, tag_id: tagId}));
+      return knex.insert(newTags).into('notes_tags');
+    })
+    .then(() => {
+      return getJoinedNoteById(noteId);
+    })
+    .then((result) => {
       if(result) {
-        res.json(result);
+        const hydrated = hydrateNotes(result)[0];
+        res.json(hydrated);
       } else {
         next();
       }
-    })
-    .catch(err => {
-      next(err);
     });
 });
 
@@ -172,7 +173,7 @@ router.post('/', (req, res, next) => {
       return knex.insert(tagsInsert).into('notes_tags');
     })
     .then(() => {
-      return getNoteById(noteId);
+      return getJoinedNoteById(noteId);
     })
     .then(result => {
       if(result) {

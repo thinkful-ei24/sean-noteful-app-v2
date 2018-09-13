@@ -1,3 +1,7 @@
+
+DROP TABLE IF EXISTS notes_tags;
+DROP TABLE IF EXISTS notes;
+DROP TABLE IF EXISTS tags;
 DROP TABLE IF EXISTS folders;
 
 CREATE TABLE folders (
@@ -22,6 +26,20 @@ CREATE TABLE notes (
   folder_id int REFERENCES folders(id) ON DELETE SET NULL
 );
 
+CREATE TABLE tags (
+  id serial PRIMARY KEY,
+  name text UNIQUE NOT NULL
+);
+
+CREATE TABLE notes_tags (
+  note_id INTEGER NOT NULL REFERENCES notes ON DELETE CASCADE,
+  tag_id INTEGER NOT NULL REFERENCES tags ON DELETE CASCADE
+);
+
+INSERT INTO tags (name) VALUES
+  ('travel'),
+  ('blog'),
+  ('important');
 
   INSERT INTO notes (title, content, folder_id) VALUES
   (
@@ -29,3 +47,11 @@ CREATE TABLE notes (
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
     100
   );
+
+  INSERT INTO notes_tags (tag_id, note_id) VALUES ('2', '1');
+
+
+-- SELECT title, tags.name, folders.name FROM notes
+-- LEFT JOIN folders ON notes.folder_id = folders.id
+-- LEFT JOIN notes_tags ON notes.id = notes_tags.note_id
+-- LEFT JOIN tags ON notes_tags.tag_id = tags.id;

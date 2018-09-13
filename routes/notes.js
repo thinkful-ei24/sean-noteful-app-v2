@@ -17,7 +17,8 @@ router.get('/', (req, res, next) => {
   const { searchTerm, folderId } = req.query;
 
   knex
-    .select('notes.id', 'title', 'content')
+    // .select('notes.id', 'title', 'content', 'folder_id', 'folders.name as folderName')
+    .select('notes.id', 'title', 'notes.content', 'folder_id', 'folders.name as folderName')
     .from('notes')
     .leftJoin('folders', 'notes.folder_id', 'folders.id')
     .modify(queryBuilder => {
@@ -44,7 +45,7 @@ router.get('/:id', (req, res, next) => {
   const id = req.params.id;
 
   knex
-    .select()
+    .select('notes.id', 'title', 'content', 'folders.id as folderId')
     .from('notes')
     .leftJoin('folders', 'notes.folder_id', 'folders.id')
     .where('notes.id', id)

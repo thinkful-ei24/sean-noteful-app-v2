@@ -62,36 +62,26 @@ router.get('/:id', (req, res, next) => {
 
 // Put update an item
 router.put('/:id', (req, res, next) => {
-  const {id} = req.params;
-  const {folderId} = req.body;
+  const noteId = req.params.id;
+  const {title, content, folderId} = req.body;
 
-  /***** Never trust users - validate input *****/
-  const updateObj = {};
-  const updateableFields = ['title', 'content', 'folderId'];
-
-  updateableFields.forEach(field => {
-    if (field in req.body) {
-      updateObj[field] = req.body[field];
-    }
-  });
-
-  /***** Never trust users - validate input *****/
-  if (!updateObj.title) {
+  if(!title) {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
     return next(err);
   }
 
-  let noteId;
+  const updateItem = {
+    title: title,
+    content: content,
+    folder_id: (folderId) ? folderId : null
+  };
 
-  knex
-    .select()
-    .from('notes')
-    .update(updateObj)
-    .where('id', id)
-    .returning('id')
-    .then(([id]) => {
-      noteId = id;
+  knex('notes')
+    .update(updateItem)
+    .where('id', noteId)
+    .returning(['id'])
+    .then(() => {
 
       return knex.select('notes.id', 'title', 'content', 'folder_id as folderId', 'folders.name as folderName')
         .from('notes')
@@ -99,7 +89,11 @@ router.put('/:id', (req, res, next) => {
         .where('notes.id', noteId);
     })
     .then(([result]) => {
-      res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
+      if(result) {
+        res.json(result);
+      } else {
+        next();
+      }
     })
     .catch(err => {
       next(err);
@@ -113,7 +107,7 @@ router.post('/', (req, res, next) => {
   const newItem = {
     title,
     content,
-    folder_id :folderId
+    folder_id :folderId ? folderId : null
   };
 
   let noteId;
@@ -139,7 +133,9 @@ router.post('/', (req, res, next) => {
     .then(([result]) => {
       res.location(`${req.originalUrl}/${result.id}`).status(201).json(result);
     })
-    .catch(err => next(err));
+    .catch(err => {
+      next(err);
+    });
 });
 
 // Delete an item
@@ -149,7 +145,7 @@ router.delete('/:id', (req, res, next) => {
   knex('notes')
     .where('id', id)
     .del()
-    .then((numDeleted) => {
+    .then(() => {
       res.sendStatus(204);
     })
     .catch(err => {

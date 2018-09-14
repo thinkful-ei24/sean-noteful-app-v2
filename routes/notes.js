@@ -12,6 +12,7 @@ const router = express.Router();
 
 const knex = require('../knex');
 const hydrateNotes = require('../utils/hydrateNotes');
+// const getJoinedNoteById = require('../utils/dbUtils');
 
 const getJoinedNoteById = function(id) {
   return knex.select(
@@ -60,6 +61,7 @@ router.get('/', (req, res, next) => {
       }
     })
     .orderBy('notes.id')
+    .limit(10)
     .then(results => {
       if(results) {
         const hydrated = hydrateNotes(results);
@@ -100,6 +102,7 @@ router.get('/:id', (req, res, next) => {
       }
     })
     .catch(err => {
+      err.status = 404;
       next(err);
     });
 });
@@ -148,7 +151,7 @@ router.put('/:id', (req, res, next) => {
 // Post (insert) an item
 router.post('/', (req, res, next) => {
   const { title, content, folderId} = req.body;
-  const tags = req.body.tags;
+  const tags = req.body.tags ? req.body.tags : [];
 
   const newItem = {
     title,
@@ -169,8 +172,8 @@ router.post('/', (req, res, next) => {
     .then(([id]) => {
       noteId = id;
 
-      const tagsInsert = tags.map(tagId => ({note_id: noteId, tag_id: tagId}));
-      return knex.insert(tagsInsert).into('notes_tags');
+      const newTags = tags.map(tagId => ({note_id: noteId, tag_id: tagId}));
+      return knex.insert(newTags).into('notes_tags');
     })
     .then(() => {
       return getJoinedNoteById(noteId);

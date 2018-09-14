@@ -46,6 +46,71 @@ INSERT INTO tags (name) VALUES
     '5 life lessons learned from cats',
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
     100
+  ),
+  (
+    '4 life lessons learned from cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    '3 life lessons learned from cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    '2 life lessons learned from cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    '1 life lesson learned from cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    '5 fun things about cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+    (
+    '5 fun things about cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+    (
+    '5 fun things about cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+    (
+    '5 fun things about cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    '4 life lessons learned from cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    '3 life lessons learned from cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    '2 life lessons learned from cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    '1 life lesson learned from cats',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
+  ),
+  (
+    'New note',
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...',
+    100
   );
 
   INSERT INTO notes_tags (tag_id, note_id) VALUES ('2', '1');

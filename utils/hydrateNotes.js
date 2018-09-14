@@ -4,6 +4,7 @@ function hydrateNotes(input) {
   for (let note of input) {
     if (!lookup[note.id]) {
       lookup[note.id] = note;
+      console.log(note);
       lookup[note.id].tags = [];
       hydrated.push(lookup[note.id]);
     }
@@ -18,6 +19,17 @@ function hydrateNotes(input) {
     delete lookup[note.id].tagName;
   }
   return hydrated;
+}
+
+// input is an array of flattened entries. duplicate entry ids are expected
+function hydrate(input) {
+  const hydrated = [], lookup = {};
+  for(let entry of input) {
+    if(!lookup[entry.id]) {
+      lookup[entry.id] = entry;
+
+    }
+  }
 }
 
 module.exports = hydrateNotes;
